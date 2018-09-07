@@ -10,17 +10,45 @@ Aliyun oss filesystem storage adapter for laravel 5. You can use Aliyun OSS just
 - cURL extension
 
 ## Prerequisite
-- Queues should be configured to use anything other than sync
+- Queues should be configured to use anything other than sync. Use database, redis or sqs.
 
-##Installation
-In order to install AliOSS-storage, just add
+### Configure Queue with database
+- set QUEUE_DRIVER to database in .env
 
-    "jacobcyl/ali-oss-storage": "^2.0"
+    `QUEUE_DRIVER=database`
+
+- create migration tables for the queue
+
+    ```php
+    php artisan queue:table
+    php artisan queue:failed-table
+    php artisan migrate
+    ```     
+- start the queue worker
+
+    `php artisan queue:work --tries=3`
+    
+- To keep the queue:work process running permanently in the background, you should use a process monitor such as Supervisor to ensure that the queue worker does not stop running.        
+    
+## Installation
+Add the Maximum fork in the composer.json repositories
+
+```$xslt
+    "repositories": [
+            {
+                "type": "vcs",
+                "url": "https://github.com/MaximumAdvertising/Aliyun-oss-storage.git"
+            }
+        ],
+```
+and add the AliOSS-storage with the Maximum branch to the required packages
+
+    "jacobcyl/ali-oss-storage": "dev-maximum"
 
 to your composer.json. Then run `composer install` or `composer update`.  
 Or you can simply run below command to install:
 
-    "composer require jacobcyl/ali-oss-storage:^2.0"
+    "composer require jacobcyl/ali-oss-storage:dev-maximum"
     
 Then in your `config/app.php` add this line to providers array:
 ```php
@@ -42,6 +70,7 @@ Add the following in app/filesystems.php:
             'ssl'           => <true|false> // true to use 'https://' and false to use 'http://'. default is false,
             'isCName'       => <true|false> // 是否使用自定义域名,true: 则Storage.url()会使用自定义的cdn或域名生成文件url， false: 则使用外部节点生成url
             'debug'         => <true|false>
+            'maxFileSize'   => '<6000000 (default) size in bytes to use queue. Only large files will use queueing for upload. Smaller file size will be uploaded directly>'
     ],
     ...
 ]
@@ -59,7 +88,7 @@ Or you can learn here:
 > First you must use Storage facade
 
 ```php
-use Storage;
+use Illuminate\Support\Facades\Storage;
 ```    
 > Then You can use all APIs of laravel Storage
 
