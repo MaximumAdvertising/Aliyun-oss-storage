@@ -605,7 +605,9 @@ class AliOssAdapter extends AbstractAdapter
      */
     public function getUrl( $path )
     {
+
         return ( $this->ssl ? 'https://' : 'http://' ) . ( $this->cdnDomain == '' ?  $this->bucket . '.' . $this->endPoint : $this->cdnDomain ) . '/' . ltrim($path, '/');
+
     }
 
     /**
